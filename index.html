@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MALAYSIA BRIEF · 국방무관 정보브리핑</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #080d13;
+  --panel: #0f1a24;
+  --panel2: #13202e;
+  --border: #1a2d40;
+  --border2: #243d55;
+  --accent: #00c896;
+  --accent2: #0080ff;
+  --warn: #ff6b35;
+  --text: #b8ccd8;
+  --text2: #7a9ab0;
+  --muted: #3a5570;
+  --gold: #ffd166;
+  --red: #ff4455;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(0,200,150,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,200,150,0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events:none; z-index:0;
+}
+
+/* ── SIDEBAR NAV ── */
+.sidebar {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: 56px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+  gap: 4px;
+  z-index: 100;
+}
+
+.nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  writing-mode: vertical-rl;
+  margin-bottom: 16px;
+}
+
+.nav-btn {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 18px;
+  transition: all 0.2s;
+  border: none; background: transparent;
+  position: relative;
+}
+.nav-btn:hover { background: var(--panel2); color: var(--text); }
+.nav-btn.active { background: rgba(0,200,150,0.12); color: var(--accent); }
+.nav-btn .tooltip {
+  position: absolute;
+  left: 52px;
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.nav-btn:hover .tooltip { opacity: 1; }
+
+.nav-spacer { flex: 1; }
+
+/* ── MAIN LAYOUT ── */
+.main {
+  margin-left: 56px;
+  padding: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(8,13,19,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topbar-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: #fff;
+}
+.topbar-title span { color: var(--accent); }
+
+.topbar-clock {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text2);
+  text-align: right;
+  line-height: 1.6;
+}
+
+.status-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  font-size: 10px;
+  color: var(--text2);
+}
+.status-pill.live { border-color: var(--accent); color: var(--accent); }
+.dot { width:6px; height:6px; border-radius:50%; background: var(--muted); }
+.dot.live { background: var(--accent); animation: blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* ── PAGES ── */
+.page { display: none; padding: 24px; max-width: 960px; }
+.page.active { display: block; }
+
+/* ── PAGE HEADER ── */
+.page-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.page-header h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 3px;
+  color: #fff;
+}
+.page-header p {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 11px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+/* ── TOPIC TAGS ── */
+.topic-row {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 20px;
+}
+.tag {
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--panel);
+  user-select: none;
+}
+.tag:hover { border-color: var(--accent); color: var(--accent); }
+.tag.active { border-color: var(--accent); color: var(--accent); background: rgba(0,200,150,0.08); }
+
+/* ── CONTROLS ── */
+.ctrl-row { display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap; }
+
+.btn-primary {
+  background: var(--accent); color: #000;
+  border: none; padding: 12px 28px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px; letter-spacing: 2px;
+  cursor: pointer; border-radius: 2px;
+  transition: all 0.2s; flex:1; min-width:160px;
+}
+.btn-primary:hover { background: #00ffb8; transform: translateY(-1px); }
+.btn-primary:disabled { background: var(--muted); cursor:not-allowed; transform:none; }
+
+.btn-sec {
+  background: transparent; color: var(--text);
+  border: 1px solid var(--border);
+  padding: 12px 18px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; cursor: pointer; border-radius: 2px;
+  transition: all 0.2s;
+}
+.btn-sec:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* ── ALARM SETTINGS ── */
+.alarm-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.alarm-box label {
+  font-size: 11px; color: var(--text2); white-space: nowrap;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.alarm-box input[type=time] {
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  color: var(--accent);
+  padding: 6px 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  border-radius: 2px;
+  outline: none;
+}
+.alarm-box input[type=checkbox] { width:16px; height:16px; accent-color: var(--accent); }
+.alarm-status {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--muted);
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.alarm-status.on { color: var(--accent); }
+
+/* ── LOADING ── */
+.loading-panel {
+  display:none;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 28px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+.loading-panel.show { display:block; }
+.load-bar-wrap { background:var(--border); height:3px; border-radius:2px; margin:16px 0 10px; overflow:hidden; }
+.load-bar { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); width:0%; transition:width 0.4s ease; }
+.load-step { font-size:11px; color:var(--text2); letter-spacing:1px; }
+.load-detail { font-size:10px; color:var(--muted); margin-top:4px; font-family:'Noto Sans KR',sans-serif; }
+
+/* ── ERROR ── */
+.error-box {
+  display:none;
+  background:rgba(255,68,85,0.08);
+  border:1px solid rgba(255,68,85,0.3);
+  border-radius:4px;
+  padding:16px;
+  font-size:12px;
+  color:var(--red);
+  margin-bottom:16px;
+  font-family:'Noto Sans KR',sans-serif;
+}
+.error-box.show { display:block; }
+
+/* ── SECTION HEADER ── */
+.sec-hdr {
+  display:flex; align-items:center; gap:12px;
+  margin:28px 0 16px;
+}
+.sec-tag {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:12px; letter-spacing:3px;
+  padding: 3px 10px; border-radius:2px;
+}
+.t-brief { background:var(--accent); color:#000; }
+.t-analysis { background:var(--accent2); color:#fff; }
+.t-history { background:var(--warn); color:#000; }
+.t-trend { background:var(--gold); color:#000; }
+.sec-line { flex:1; height:1px; background:var(--border); }
+.sec-count { font-size:10px; color:var(--muted); }
+
+/* ── BRIEF CARD ── */
+.brief-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  padding: 20px 22px;
+  margin-bottom: 14px;
+}
+.brief-card.sig-high { border-left-color: var(--red); }
+.brief-card.sig-medium { border-left-color: var(--gold); }
+.brief-card.sig-low { border-left-color: var(--muted); }
+
+.brief-meta-top {
+  display:flex; align-items:center; gap:10px;
+  font-size:10px; color:var(--muted); margin-bottom:8px; flex-wrap:wrap;
+}
+.sig-badge {
+  padding: 2px 7px; border-radius:2px; font-size:9px; font-weight:600; letter-spacing:1px;
+}
+.sig-HIGH { background:rgba(255,68,85,0.15); color:var(--red); }
+.sig-MEDIUM { background:rgba(255,209,102,0.15); color:var(--gold); }
+.sig-LOW { background:rgba(58,85,112,0.3); color:var(--muted); }
+
+.brief-headline { font-size:14px; font-weight:600; color:#fff; margin-bottom:10px; line-height:1.5; }
+.brief-en { font-size:12px; line-height:1.85; color:var(--text); margin-bottom:12px; }
+.brief-kr {
+  background:rgba(255,209,102,0.06);
+  border:1px solid rgba(255,209,102,0.18);
+  border-radius:3px;
+  padding:11px 14px;
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:12px; line-height:1.9; color:#dcc880;
+}
+
+/* ── ANALYSIS CARD ── */
+.analysis-card {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-left:3px solid var(--accent2);
+  border-radius:4px;
+  padding:20px 22px;
+  margin-bottom:14px;
+}
+.key-sent-box {
+  background:rgba(0,128,255,0.06);
+  border:1px solid rgba(0,128,255,0.2);
+  border-radius:3px;
+  padding:13px 16px;
+  font-size:13px; line-height:1.75;
+  color:#90b8e8; font-style:italic;
+  margin-bottom:16px;
+}
+.analysis-tbl { width:100%; border-collapse:collapse; font-size:11px; }
+.analysis-tbl th {
+  text-align:left; padding:6px 10px;
+  background:rgba(0,128,255,0.08);
+  color:var(--accent2); font-size:9px;
+  text-transform:uppercase; letter-spacing:1px; font-weight:600;
+}
+.analysis-tbl td { padding:7px 10px; border-bottom:1px solid var(--border); vertical-align:top; line-height:1.6; }
+.analysis-tbl tr:last-child td { border-bottom:none; }
+.col-phrase { color:var(--accent); font-weight:600; }
+.col-part { color:var(--warn); }
+.col-kr { color:var(--text); font-family:'Noto Sans KR',sans-serif; font-size:11px; }
+.col-note { color:var(--muted); font-size:10px; }
+.struct-note {
+  margin-top:13px; padding:10px 14px;
+  background:rgba(0,200,150,0.05);
+  border-radius:3px;
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:11px; line-height:1.75; color:var(--text2);
+}
+.vocab-row { margin-top:12px; display:flex; flex-wrap:wrap; gap:12px; }
+.vocab-chip {
+  font-size:11px; background:var(--panel2);
+  border:1px solid var(--border2);
+  border-radius:3px; padding:5px 10px;
+  line-height:1.6;
+}
+.vocab-chip strong { color:var(--accent); }
+
+/* ── HISTORY PAGE ── */
+.history-list { display:flex; flex-direction:column; gap:12px; }
+
+.history-card {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:16px 20px;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.history-card:hover { border-color:var(--border2); background:var(--panel2); }
+.history-card .h-date { font-size:10px; color:var(--muted); margin-bottom:6px; }
+.history-card .h-topics { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+.h-topic-tag {
+  font-size:9px; padding:2px 7px;
+  border:1px solid var(--border2);
+  border-radius:2px; color:var(--text2);
+}
+.history-card .h-headline { font-size:12px; color:var(--text); line-height:1.5; }
+.history-card .h-count { font-size:10px; color:var(--accent); margin-top:6px; }
+
+.history-detail {
+  display:none;
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:20px;
+  margin-top:8px;
+}
+.history-detail.show { display:block; }
+.history-detail .close-btn {
+  float:right; cursor:pointer;
+  color:var(--muted); font-size:14px;
+}
+.history-detail .close-btn:hover { color:var(--text); }
+
+.no-history {
+  text-align:center; padding:60px 20px;
+  color:var(--muted); font-size:12px;
+  font-family:'Noto Sans KR',sans-serif; line-height:2;
+}
+
+/* ── TREND PAGE ── */
+.trend-grid {
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:16px;
+  margin-bottom:24px;
+}
+@media(max-width:700px){ .trend-grid { grid-template-columns:1fr; } }
+
+.trend-card {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:16px 18px;
+}
+.trend-card h3 {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:14px; letter-spacing:2px;
+  color:var(--text2); margin-bottom:14px;
+}
+
+.kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.kpi-box {
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:14px;
+  text-align:center;
+}
+.kpi-num {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:32px; color:#fff; line-height:1;
+}
+.kpi-num span { font-size:16px; color:var(--accent); }
+.kpi-label { font-size:9px; color:var(--muted); letter-spacing:1px; margin-top:6px; font-family:'Noto Sans KR',sans-serif; }
+
+.cat-bar { margin-bottom:10px; }
+.cat-bar-label {
+  display:flex; justify-content:space-between;
+  font-size:10px; margin-bottom:4px; color:var(--text2);
+}
+.cat-bar-track { background:var(--border); border-radius:2px; height:6px; overflow:hidden; }
+.cat-bar-fill { height:100%; border-radius:2px; background:var(--accent); transition:width 0.6s ease; }
+
+.sig-donut-wrap { display:flex; align-items:center; gap:16px; }
+.sig-legend { display:flex; flex-direction:column; gap:8px; }
+.sig-leg-item { display:flex; align-items:center; gap:8px; font-size:10px; color:var(--text2); }
+.sig-dot { width:10px; height:10px; border-radius:2px; }
+
+/* ── SETTINGS PAGE ── */
+.settings-section {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:20px 22px;
+  margin-bottom:16px;
+}
+.settings-section h3 {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:15px; letter-spacing:2px;
+  color:var(--text); margin-bottom:16px;
+  padding-bottom:10px; border-bottom:1px solid var(--border);
+}
+.setting-row {
+  display:flex; align-items:center; gap:12px;
+  padding:10px 0; border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
+}
+.setting-row:last-child { border-bottom:none; padding-bottom:0; }
+.setting-label {
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:12px; color:var(--text); min-width:140px;
+}
+.setting-sub { font-size:10px; color:var(--muted); margin-top:2px; }
+.setting-ctrl { margin-left:auto; }
+
+.toggle {
+  position:relative; width:40px; height:22px;
+  display:inline-block;
+}
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-slider {
+  position:absolute; inset:0;
+  background:var(--border2); border-radius:22px;
+  cursor:pointer; transition:0.3s;
+}
+.toggle-slider:before {
+  content:''; position:absolute;
+  width:16px; height:16px;
+  left:3px; bottom:3px;
+  background:#fff; border-radius:50%;
+  transition:0.3s;
+}
+.toggle input:checked + .toggle-slider { background:var(--accent); }
+.toggle input:checked + .toggle-slider:before { transform:translateX(18px); }
+
+select.setting-select {
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  color:var(--text); padding:6px 10px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px; border-radius:2px; outline:none;
+}
+
+.pdf-btn {
+  background:rgba(255,107,53,0.1);
+  border:1px solid rgba(255,107,53,0.3);
+  color:var(--warn);
+  padding:10px 20px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  border-radius:2px;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:inline-flex; align-items:center; gap:6px;
+}
+.pdf-btn:hover { background:rgba(255,107,53,0.2); }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:24px; right:24px;
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  border-left:3px solid var(--accent);
+  padding:12px 18px;
+  border-radius:4px;
+  font-size:12px;
+  font-family:'Noto Sans KR',sans-serif;
+  color:var(--text);
+  opacity:0; transform:translateY(12px);
+  transition:all 0.3s;
+  z-index:999;
+  max-width:280px;
+}
+.toast.show { opacity:1; transform:translateY(0); }
+
+/* ── API KEY BANNER ── */
+.apikey-banner {
+  background: linear-gradient(135deg, rgba(255,107,53,0.12), rgba(255,68,85,0.08));
+  border: 1px solid rgba(255,107,53,0.35);
+  border-radius: 4px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.apikey-banner.ok {
+  background: linear-gradient(135deg, rgba(0,200,150,0.08), rgba(0,128,255,0.06));
+  border-color: rgba(0,200,150,0.3);
+}
+.apikey-banner-text {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 11px;
+  line-height: 1.6;
+  flex: 1;
+}
+.apikey-banner-text strong { color: var(--warn); display: block; margin-bottom: 2px; }
+.apikey-banner.ok .apikey-banner-text strong { color: var(--accent); }
+.apikey-input-wrap { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.apikey-input {
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 7px 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  border-radius: 2px;
+  outline: none;
+  width: 260px;
+  letter-spacing: 1px;
+  transition: border-color 0.2s;
+}
+.apikey-input:focus { border-color: var(--accent); }
+.apikey-input::placeholder { color: var(--muted); letter-spacing: 0; }
+.apikey-save-btn {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  padding: 7px 14px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.apikey-save-btn:hover { background: #00ffb8; }
+.apikey-clear-btn {
+  background: transparent;
+  border: 1px solid rgba(255,68,85,0.3);
+  color: var(--red);
+  padding: 7px 12px;
+  font-size: 11px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.apikey-clear-btn:hover { background: rgba(255,68,85,0.1); }
+
+/* ── PDF PRINT STYLES ── */
+@media print {
+  .sidebar, .topbar, .ctrl-row, .topic-row, .alarm-box,
+  .loading-panel, .nav-btn, .btn-primary, .btn-sec,
+  .pdf-btn { display:none !important; }
+  body { background:#fff; color:#000; font-size:11px; }
+  .main { margin-left:0; }
+  .page { display:block !important; padding:0; }
+  .brief-card, .analysis-card { border:1px solid #ccc; margin-bottom:10px; break-inside:avoid; }
+  .brief-kr { background:#f8f5e4; color:#444; }
+  h1,h2 { color:#000; }
+  .analysis-tbl th { background:#eee; color:#333; }
+  .analysis-tbl td { border-bottom:1px solid #eee; }
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px) {
+  .analysis-tbl th:nth-child(4), .analysis-tbl td:nth-child(4) { display:none; }
+  .trend-grid { grid-template-columns:1fr; }
+}
+
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<nav class="sidebar">
+  <div class="nav-logo">MB</div>
+  <button class="nav-btn active" onclick="showPage('brief')" id="nav-brief">
+    📡<span class="tooltip">일일 브리핑</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('history')" id="nav-history">
+    🗂<span class="tooltip">브리핑 이력</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('trend')" id="nav-trend">
+    📊<span class="tooltip">주간 동향</span>
+  </button>
+  <div class="nav-spacer"></div>
+  <button class="nav-btn" onclick="showPage('settings')" id="nav-settings">
+    ⚙️<span class="tooltip">설정</span>
+  </button>
+</nav>
+
+<!-- ── TOP BAR ── -->
+<div class="main">
+<div class="topbar">
+  <div class="topbar-title">MALAYSIA <span>BRIEF</span></div>
+  <div class="status-pill" id="statusPill">
+    <div class="dot" id="statusDot"></div>
+    <span id="statusText">대기 중</span>
+  </div>
+  <div class="topbar-clock">
+    <div id="clockTime"></div>
+    <div id="clockDate" style="font-size:9px;color:var(--muted)"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     PAGE: BRIEF
+══════════════════════════════ -->
+<div class="page active" id="page-brief">
+  <div class="page-header">
+    <h2>일일 브리핑</h2>
+    <p>말레이시아 최신 동향 · 영문 요약 및 한국어 번역 · 핵심 문장 구조 분석</p>
+  </div>
+
+  <!-- API Key Banner -->
+  <div class="apikey-banner" id="apikeyBanner">
+    <div class="apikey-banner-text">
+      <strong>🔑 Anthropic API 키 필요</strong>
+      GitHub/Netlify에서 사용하려면 API 키를 입력하세요. 키는 브라우저에만 저장되며 외부로 전송되지 않습니다.
+    </div>
+    <div class="apikey-input-wrap">
+      <input class="apikey-input" id="apikeyInput" type="password" placeholder="sk-ant-api03-..." autocomplete="off">
+      <button class="apikey-save-btn" onclick="saveApiKey()">저장</button>
+      <button class="apikey-clear-btn" id="apikeyClearBtn" onclick="clearApiKey()" style="display:none">삭제</button>
+    </div>
+  </div>
+
+  <!-- Alarm -->
+  <div class="alarm-box" id="alarmBox">
+    <label>⏰ 자동 브리핑</label>
+    <label class="toggle">
+      <input type="checkbox" id="alarmEnabled" onchange="toggleAlarm()">
+      <span class="toggle-slider"></span>
+    </label>
+    <label>매일</label>
+    <input type="time" id="alarmTime" value="08:00" onchange="saveAlarmSettings()">
+    <span>에 자동 시작</span>
+    <span class="alarm-status" id="alarmStatus">비활성화</span>
+  </div>
+
+  <!-- Topics -->
+  <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:8px">■ 검색 주제</div>
+  <div class="topic-row" id="topicTags">
+    <span class="tag active" data-topic="Malaysia defence military">🛡 국방·군사</span>
+    <span class="tag active" data-topic="Malaysia politics government">🏛 정치·정부</span>
+    <span class="tag active" data-topic="Malaysia security ASEAN">🌏 안보·ASEAN</span>
+    <span class="tag" data-topic="Malaysia economy trade">💼 경제·무역</span>
+    <span class="tag" data-topic="Malaysia South China Sea maritime">⚓ 남중국해</span>
+    <span class="tag" data-topic="Malaysia China US relations">🤝 외교관계</span>
+    <span class="tag" data-topic="Malaysia Korea bilateral">🇰🇷 한·말 관계</span>
+  </div>
+
+  <!-- Controls -->
+  <div class="ctrl-row">
+    <button class="btn-primary" id="briefBtn" onclick="startBriefing()">▶ 브리핑 시작</button>
+    <button class="btn-sec" onclick="exportPDF()">📄 PDF 저장</button>
+    <button class="btn-sec" onclick="clearBrief()">✕ 초기화</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-panel" id="loadingPanel">
+    <div class="load-step" id="loadStep">초기화 중...</div>
+    <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
+    <div class="load-detail" id="loadDetail"></div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- Output -->
+  <div id="briefOutput" style="display:none">
+
+    <div class="sec-hdr">
+      <span class="sec-tag t-brief">NEWS BRIEF</span>
+      <div class="sec-line"></div>
+      <span class="sec-count" id="briefCount"></span>
+    </div>
+    <div id="briefCards"></div>
+
+    <div class="sec-hdr">
+      <span class="sec-tag t-analysis">SENTENCE ANALYSIS</span>
+      <div class="sec-line"></div>
+    </div>
+    <div id="analysisCards"></div>
+
+    <div style="display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid var(--border);margin-top:20px;font-size:10px;color:var(--muted);flex-wrap:wrap;gap:8px">
+      <span>MALAYSIA BRIEF · 국방무관 정보브리핑 시스템</span>
+      <span id="genTime"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     PAGE: HISTORY
+══════════════════════════════ -->
+<div class="page" id="page-history">
+  <div class="page-header">
+    <h2>브리핑 이력</h2>
+    <p>저장된 과거 브리핑 기록 · 클릭하여 상세 내용 확인</p>
+  </div>
+
+  <div class="ctrl-row">
+    <button class="btn-sec" onclick="clearAllHistory()" style="color:var(--red);border-color:rgba(255,68,85,0.3)">🗑 전체 삭제</button>
+  </div>
+
+  <div class="sec-hdr">
+    <span class="sec-tag t-history">HISTORY</span>
+    <div class="sec-line"></div>
+    <span class="sec-count" id="historyCount"></span>
+  </div>
+
+  <div class="history-list" id="historyList"></div>
+</div>
+
+<!-- ══════════════════════════════
+     PAGE: TREND
+══════════════════════════════ -->
+<div class="page" id="page-trend">
+  <div class="page-header">
+    <h2>주간 동향 분석</h2>
+    <p>누적 브리핑 데이터 기반 통계 · Weekly Intelligence Trend Dashboard</p>
+  </div>
+
+  <div class="kpi-grid" style="margin-bottom:20px">
+    <div class="kpi-box">
+      <div class="kpi-num" id="kpi-total">0</div>
+      <div class="kpi-label">총 브리핑 횟수</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-num" id="kpi-news">0</div>
+      <div class="kpi-label">총 뉴스 건수</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-num" id="kpi-high">0<span>건</span></div>
+      <div class="kpi-label">HIGH 중요도</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-num" id="kpi-days">0</div>
+      <div class="kpi-label">누적 모니터링 일수</div>
+    </div>
+  </div>
+
+  <div class="trend-grid">
+    <div class="trend-card" style="grid-column:1/-1">
+      <h3>일별 뉴스 수집 건수</h3>
+      <canvas id="chartDaily" height="120"></canvas>
+    </div>
+    <div class="trend-card">
+      <h3>카테고리별 분포</h3>
+      <div id="catBars"></div>
+    </div>
+    <div class="trend-card">
+      <h3>중요도 분포</h3>
+      <div class="sig-donut-wrap">
+        <canvas id="chartSig" width="120" height="120"></canvas>
+        <div class="sig-legend" id="sigLegend"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="trendEmpty" style="display:none;text-align:center;padding:60px;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;line-height:2">
+    📊 아직 데이터가 없습니다.<br>브리핑을 실행하면 동향 분석이 시작됩니다.
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     PAGE: SETTINGS
+══════════════════════════════ -->
+<div class="page" id="page-settings">
+  <div class="page-header">
+    <h2>설정</h2>
+    <p>알림 · 언어 · 저장 · 기타 환경설정</p>
+  </div>
+
+  <div class="settings-section">
+    <h3>🔑 API 키 설정</h3>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Anthropic API 키</div>
+        <div class="setting-sub">GitHub/Netlify 독립 실행 시 필요 · 브라우저 로컬 저장</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+      <input class="apikey-input" id="s-apikeyInput" type="password" placeholder="sk-ant-api03-..." autocomplete="off" style="width:100%;max-width:340px">
+      <button class="apikey-save-btn" onclick="saveApiKeyFromSettings()">저장</button>
+      <button class="apikey-clear-btn" id="s-apikeyClearBtn" onclick="clearApiKey()">삭제</button>
+    </div>
+    <div style="margin-top:10px;font-size:10px;color:var(--muted);font-family:'Noto Sans KR',sans-serif;line-height:1.8">
+      💡 API 키는 <strong style="color:var(--text2)">console.anthropic.com</strong> 에서 발급받을 수 있습니다.<br>
+      키는 이 기기의 브라우저(localStorage)에만 저장되며, 서버로 전송되지 않습니다.
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>⏰ 자동 알림 설정</h3>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">자동 브리핑 알림</div>
+        <div class="setting-sub">매일 지정 시각에 자동으로 브리핑 시작</div>
+      </div>
+      <div class="setting-ctrl">
+        <label class="toggle">
+          <input type="checkbox" id="s-alarmEnabled" onchange="syncAlarm()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">알림 시각</div>
+        <div class="setting-sub">브리핑 자동 시작 시각</div>
+      </div>
+      <div class="setting-ctrl">
+        <input type="time" id="s-alarmTime" value="08:00" class="alarm-box" style="padding:6px 10px;border:1px solid var(--border2);background:var(--panel2);color:var(--accent);font-family:'IBM Plex Mono',monospace;border-radius:2px;outline:none" onchange="syncAlarm()">
+      </div>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">브라우저 알림</div>
+        <div class="setting-sub">알림 권한 허용 필요</div>
+      </div>
+      <div class="setting-ctrl">
+        <button class="btn-sec" onclick="requestNotifPerm()">권한 요청</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>📄 출력 / 저장</h3>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">PDF 저장</div>
+        <div class="setting-sub">현재 브리핑을 PDF로 출력</div>
+      </div>
+      <div class="setting-ctrl">
+        <button class="pdf-btn" onclick="exportPDF()">📄 PDF 출력</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">데이터 초기화</div>
+        <div class="setting-sub">모든 이력 및 통계 삭제</div>
+      </div>
+      <div class="setting-ctrl">
+        <button class="btn-sec" style="color:var(--red);border-color:rgba(255,68,85,0.3)" onclick="clearAllHistory()">🗑 전체 삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>ℹ️ 앱 정보</h3>
+    <div class="setting-row">
+      <div class="setting-label">버전</div>
+      <div style="margin-left:auto;font-size:11px;color:var(--muted)">v2.0.0</div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">목적</div>
+      <div style="margin-left:auto;font-size:11px;color:var(--muted);font-family:'Noto Sans KR',sans-serif">말레이시아 국방무관 정보지원</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════
+//  STATE & STORAGE
+// ══════════════════════════════
+const STORAGE_KEY = 'malaysia_brief_history';
+const SETTINGS_KEY = 'malaysia_brief_settings';
+
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function saveHistory(h) { localStorage.setItem(STORAGE_KEY, JSON.stringify(h)); }
+function loadSettings() {
+  try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); }
+  catch(e) { return {}; }
+}
+function saveSettings(s) { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }
+
+let currentBriefData = null;
+let alarmTimer = null;
+let chartDaily = null, chartSig = null;
+
+// ══════════════════════════════
+//  CLOCK
+// ══════════════════════════════
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clockTime').textContent =
+    now.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('clockDate').textContent =
+    now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+  checkAlarm(now);
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ══════════════════════════════
+//  PAGE NAV
+// ══════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+  if (id === 'history') renderHistory();
+  if (id === 'trend') renderTrend();
+}
+
+// ══════════════════════════════
+//  TOPICS
+// ══════════════════════════════
+document.querySelectorAll('.tag').forEach(t => t.addEventListener('click', () => t.classList.toggle('active')));
+
+function getActiveTopics() {
+  return [...document.querySelectorAll('#topicTags .tag.active')]
+    .map(t => t.dataset.topic).join(', ');
+}
+
+// ══════════════════════════════
+//  ALARM
+// ══════════════════════════════
+function loadAlarmUI() {
+  const s = loadSettings();
+  const enabled = !!s.alarmEnabled;
+  const time = s.alarmTime || '08:00';
+  document.getElementById('alarmEnabled').checked = enabled;
+  document.getElementById('alarmTime').value = time;
+  document.getElementById('s-alarmEnabled').checked = enabled;
+  document.getElementById('s-alarmTime').value = time;
+  updateAlarmStatus(enabled, time);
+}
+
+function toggleAlarm() {
+  const enabled = document.getElementById('alarmEnabled').checked;
+  const time = document.getElementById('alarmTime').value;
+  document.getElementById('s-alarmEnabled').checked = enabled;
+  saveSettings({...loadSettings(), alarmEnabled: enabled, alarmTime: time});
+  updateAlarmStatus(enabled, time);
+  showToast(enabled ? `⏰ 매일 ${time} 자동 브리핑 활성화` : '⏰ 자동 브리핑 비활성화');
+}
+
+function saveAlarmSettings() {
+  const time = document.getElementById('alarmTime').value;
+  const enabled = document.getElementById('alarmEnabled').checked;
+  saveSettings({...loadSettings(), alarmTime: time, alarmEnabled: enabled});
+  document.getElementById('s-alarmTime').value = time;
+  updateAlarmStatus(enabled, time);
+}
+
+function syncAlarm() {
+  const enabled = document.getElementById('s-alarmEnabled').checked;
+  const time = document.getElementById('s-alarmTime').value;
+  document.getElementById('alarmEnabled').checked = enabled;
+  document.getElementById('alarmTime').value = time;
+  saveSettings({...loadSettings(), alarmEnabled: enabled, alarmTime: time});
+  updateAlarmStatus(enabled, time);
+  showToast(enabled ? `⏰ 매일 ${time} 자동 브리핑 설정됨` : '⏰ 자동 브리핑 비활성화');
+}
+
+function updateAlarmStatus(enabled, time) {
+  const el = document.getElementById('alarmStatus');
+  if (enabled) {
+    el.textContent = `✅ 매일 ${time} 활성화`;
+    el.className = 'alarm-status on';
+  } else {
+    el.textContent = '비활성화';
+    el.className = 'alarm-status';
+  }
+}
+
+function checkAlarm(now) {
+  const s = loadSettings();
+  if (!s.alarmEnabled || !s.alarmTime) return;
+  const [h, m] = s.alarmTime.split(':').map(Number);
+  if (now.getHours() === h && now.getMinutes() === m && now.getSeconds() === 0) {
+    const today = now.toDateString();
+    if (s.lastAutoRun !== today) {
+      saveSettings({...s, lastAutoRun: today});
+      showToast('⏰ 자동 브리핑 시작!');
+      startBriefing();
+    }
+  }
+}
+
+async function requestNotifPerm() {
+  if (!('Notification' in window)) { showToast('❌ 이 브라우저는 알림을 지원하지 않습니다.'); return; }
+  const perm = await Notification.requestPermission();
+  showToast(perm === 'granted' ? '✅ 알림 권한 허용됨' : '❌ 알림 권한 거부됨');
+}
+
+// ══════════════════════════════
+//  API KEY MANAGEMENT
+// ══════════════════════════════
+const APIKEY_STORAGE = 'malaysia_brief_apikey';
+
+function getApiKey() {
+  return localStorage.getItem(APIKEY_STORAGE) || '';
+}
+
+function saveApiKey() {
+  const val = document.getElementById('apikeyInput').value.trim();
+  if (!val.startsWith('sk-ant-')) {
+    showToast('⚠ 올바른 API 키 형식이 아닙니다. (sk-ant-로 시작)');
+    return;
+  }
+  localStorage.setItem(APIKEY_STORAGE, val);
+  document.getElementById('s-apikeyInput').value = val;
+  updateApiKeyUI();
+  showToast('✅ API 키가 저장되었습니다.');
+}
+
+function saveApiKeyFromSettings() {
+  const val = document.getElementById('s-apikeyInput').value.trim();
+  if (!val.startsWith('sk-ant-')) {
+    showToast('⚠ 올바른 API 키 형식이 아닙니다. (sk-ant-로 시작)');
+    return;
+  }
+  localStorage.setItem(APIKEY_STORAGE, val);
+  document.getElementById('apikeyInput').value = val;
+  updateApiKeyUI();
+  showToast('✅ API 키가 저장되었습니다.');
+}
+
+function clearApiKey() {
+  if (!confirm('저장된 API 키를 삭제하시겠습니까?')) return;
+  localStorage.removeItem(APIKEY_STORAGE);
+  document.getElementById('apikeyInput').value = '';
+  document.getElementById('s-apikeyInput').value = '';
+  updateApiKeyUI();
+  showToast('🗑 API 키가 삭제되었습니다.');
+}
+
+function updateApiKeyUI() {
+  const key = getApiKey();
+  const hasKey = !!key;
+  const banner = document.getElementById('apikeyBanner');
+  const clearBtn = document.getElementById('apikeyClearBtn');
+  const sClearBtn = document.getElementById('s-apikeyClearBtn');
+  const bannerText = banner.querySelector('.apikey-banner-text');
+
+  if (hasKey) {
+    banner.className = 'apikey-banner ok';
+    bannerText.innerHTML = `<strong>✅ API 키 등록됨</strong>브리핑 시작 버튼을 눌러 사용하세요. 키: sk-ant-...${key.slice(-6)}`;
+    clearBtn.style.display = 'inline-block';
+    if (sClearBtn) sClearBtn.style.display = 'inline-block';
+  } else {
+    banner.className = 'apikey-banner';
+    bannerText.innerHTML = `<strong>🔑 Anthropic API 키 필요</strong>GitHub/Netlify에서 사용하려면 API 키를 입력하세요. 키는 브라우저에만 저장됩니다.`;
+    clearBtn.style.display = 'none';
+    if (sClearBtn) sClearBtn.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════
+//  API CALL
+// ══════════════════════════════
+async function callClaude(system, user) {
+  const storedKey = getApiKey();
+  const headers = { 'Content-Type': 'application/json' };
+  if (storedKey) {
+    headers['x-api-key'] = storedKey;
+    headers['anthropic-version'] = '2023-06-01';
+    headers['anthropic-dangerous-direct-browser-access'] = 'true';
+  }
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4000,
+      system,
+      messages: [{role:'user', content: user}],
+      tools: [{type: 'web_search_20250305', name: 'web_search'}]
+    })
+  });
+  if (!resp.ok) {
+    const errBody = await resp.json().catch(()=>({}));
+    if (resp.status === 401) throw new Error('API 키가 올바르지 않습니다. 설정에서 키를 확인해주세요.');
+    if (resp.status === 429) throw new Error('API 요청 한도 초과. 1분 후 다시 시도해주세요.');
+    throw new Error(`API ${resp.status}${errBody.error?.message ? ': ' + errBody.error.message : ''}`);
+  }
+  return resp.json();
+}
+
+function extractText(data) {
+  return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+}
+
+function parseJSON(text) {
+  const clean = text.replace(/```json|```/g, '').trim();
+  const s = clean.indexOf('{'), e = clean.lastIndexOf('}');
+  return JSON.parse(clean.slice(s, e+1));
+}
+
+// ══════════════════════════════
+//  BRIEFING
+// ══════════════════════════════
+function setLoad(step, pct, detail='') {
+  document.getElementById('loadStep').textContent = step;
+  document.getElementById('loadBar').style.width = pct + '%';
+  document.getElementById('loadDetail').textContent = detail;
+}
+
+function setStatus(live, text) {
+  const dot = document.getElementById('statusDot');
+  const pill = document.getElementById('statusPill');
+  dot.className = 'dot' + (live ? ' live' : '');
+  pill.className = 'status-pill' + (live ? ' live' : '');
+  document.getElementById('statusText').textContent = text;
+}
+
+async function startBriefing() {
+  const topics = getActiveTopics();
+  if (!topics) { showToast('⚠ 주제를 하나 이상 선택해주세요.'); return; }
+
+  const btn = document.getElementById('briefBtn');
+  btn.disabled = true; btn.textContent = '▷ 분석 중...';
+
+  document.getElementById('loadingPanel').classList.add('show');
+  document.getElementById('briefOutput').style.display = 'none';
+  document.getElementById('errorBox').classList.remove('show');
+  setStatus(true, '검색 중...');
+
+  const today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+
+  try {
+    // Single combined API call: news search + sentence analysis together
+    setLoad('말레이시아 최신 뉴스 검색 중...', 20, 'Web search via Claude AI');
+
+    const combinedData = await callClaude(
+      `You are both an intelligence analyst and an English linguistics professor helping a Korean defence attaché in Malaysia.
+Today: ${today}.
+
+TASK 1: Search the web for the LATEST news about: ${topics}.
+TASK 2: For the top 3 news items, analyze the key_sentence grammatically.
+
+Return ONLY valid JSON (absolutely no markdown, no code fences, no preamble):
+{
+  "briefs": [
+    {
+      "number": 1,
+      "headline": "short English headline",
+      "summary_en": "2-3 sentence English summary",
+      "summary_kr": "2-3문장 한국어 요약",
+      "category": "Defence|Politics|Security|Economy|Diplomacy|Maritime",
+      "source": "source name",
+      "significance": "HIGH|MEDIUM|LOW",
+      "key_sentence": "one grammatically complete English sentence from this news"
+    }
+  ],
+  "analyses": [
+    {
+      "sentence": "key_sentence from brief 1",
+      "components": [
+        {"text":"phrase or word","part":"Subject|Verb|Object|Complement|Modifier|etc","korean":"한국어 의미","note":"grammar or vocab tip"}
+      ],
+      "structure_note_kr": "문장 구조와 핵심 의미를 한국어로 설명 (2문장)",
+      "key_vocab": [
+        {"word":"important word","meaning_kr":"한국어 뜻","usage":"brief context"}
+      ]
+    }
+  ]
+}
+Rules:
+- Provide exactly 4 briefs
+- Provide analyses for the first 3 briefs only
+- Be factual and relevant to Korean defence interests
+- key_sentence must be a real, grammatically complete English sentence`,
+      `Search and analyze Malaysia news today (${today}) for topics: ${topics}`
+    );
+
+    setLoad('데이터 처리 중...', 70, 'Parsing results...');
+    let combinedJson;
+    try { combinedJson = parseJSON(extractText(combinedData)); }
+    catch(e) { throw new Error('응답 파싱 오류. 다시 시도해주세요.'); }
+
+    const briefs = combinedJson.briefs || [];
+    if (!briefs.length) throw new Error('검색 결과 없음. 주제를 변경해보세요.');
+    const analysisJson = { analyses: combinedJson.analyses || [] };
+
+    setLoad('화면 구성 중...', 90, 'Rendering...');
+
+    // Render
+    renderBriefs(briefs);
+    renderAnalyses(analysisJson.analyses || [], briefs);
+
+
+    document.getElementById('briefCount').textContent = `총 ${briefs.length}건`;
+    const genTime = new Date().toLocaleString('ko-KR');
+    document.getElementById('genTime').textContent = '생성: ' + genTime;
+
+    // Save to history
+    currentBriefData = { briefs, analyses: analysisJson.analyses || [], topics, genTime, date: new Date().toISOString() };
+    saveBriefToHistory(currentBriefData);
+
+    setLoad('완료', 100);
+    setTimeout(() => {
+      document.getElementById('loadingPanel').classList.remove('show');
+      document.getElementById('briefOutput').style.display = 'block';
+    }, 400);
+    setStatus(false, '브리핑 완료');
+    showToast('✅ 브리핑 완료! 이력에 저장되었습니다.');
+
+    if (Notification.permission === 'granted') {
+      new Notification('Malaysia Brief', { body: `브리핑 완료 · ${briefs.length}건 수집`, icon: '' });
+    }
+
+  } catch(err) {
+    document.getElementById('loadingPanel').classList.remove('show');
+    const eb = document.getElementById('errorBox');
+    eb.textContent = '⚠ 오류: ' + err.message + ' — 잠시 후 다시 시도해주세요.';
+    eb.classList.add('show');
+    setStatus(false, '오류');
+  }
+
+  btn.disabled = false; btn.textContent = '▶ 브리핑 시작';
+}
+
+// ══════════════════════════════
+//  RENDER BRIEFS
+// ══════════════════════════════
+const sigClass = {HIGH:'sig-high', MEDIUM:'sig-medium', LOW:'sig-low'};
+
+function renderBriefs(briefs) {
+  document.getElementById('briefCards').innerHTML = briefs.map((b,i) => `
+    <div class="brief-card ${sigClass[b.significance]||''}">
+      <div class="brief-meta-top">
+        <span>BRIEF ${String(b.number||i+1).padStart(2,'0')}</span>
+        <span class="sig-badge sig-${b.significance}">${b.significance||'—'}</span>
+        <span>${b.category||'—'}</span>
+        <span style="margin-left:auto">📰 ${b.source||'—'}</span>
+      </div>
+      <div class="brief-headline">${b.headline||'—'}</div>
+      <div class="brief-en">${b.summary_en||'—'}</div>
+      <div class="brief-kr">${b.summary_kr||'—'}</div>
+    </div>
+  `).join('');
+}
+
+function renderAnalyses(analyses, briefs) {
+  if (!analyses.length) {
+    document.getElementById('analysisCards').innerHTML =
+      '<div style="color:var(--muted);font-size:12px;padding:16px 0;font-family:Noto Sans KR,sans-serif">구조 분석 결과를 불러올 수 없었습니다.</div>';
+    return;
+  }
+  document.getElementById('analysisCards').innerHTML = analyses.map((a,i) => `
+    <div class="analysis-card">
+      <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px">
+        KEY SENTENCE · BRIEF ${String(i+1).padStart(2,'0')}
+      </div>
+      <div class="key-sent-box">${a.sentence || briefs[i]?.key_sentence || '—'}</div>
+      ${(a.components||[]).length ? `
+      <table class="analysis-tbl">
+        <thead><tr>
+          <th>어구</th><th>문장성분</th><th>한국어 의미</th><th>비고</th>
+        </tr></thead>
+        <tbody>${(a.components||[]).map(c=>`
+          <tr>
+            <td class="col-phrase">${c.text||''}</td>
+            <td class="col-part">${c.part||''}</td>
+            <td class="col-kr">${c.korean||''}</td>
+            <td class="col-note">${c.note||''}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>` : ''}
+      ${(a.key_vocab||[]).length ? `
+      <div class="vocab-row">${(a.key_vocab||[]).map(v=>`
+        <div class="vocab-chip"><strong>${v.word}</strong> → ${v.meaning_kr} <span style="color:var(--muted);font-size:10px">(${v.usage||''})</span></div>
+      `).join('')}</div>` : ''}
+      ${a.structure_note_kr ? `<div class="struct-note">💡 ${a.structure_note_kr}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function clearBrief() {
+  document.getElementById('briefOutput').style.display = 'none';
+  document.getElementById('errorBox').classList.remove('show');
+  document.getElementById('briefCards').innerHTML = '';
+  document.getElementById('analysisCards').innerHTML = '';
+  setStatus(false, '대기 중');
+}
+
+// ══════════════════════════════
+//  HISTORY
+// ══════════════════════════════
+function saveBriefToHistory(data) {
+  const h = loadHistory();
+  h.unshift({...data, id: Date.now()});
+  if (h.length > 30) h.pop(); // keep last 30
+  saveHistory(h);
+}
+
+function renderHistory() {
+  const h = loadHistory();
+  const el = document.getElementById('historyList');
+  document.getElementById('historyCount').textContent = `총 ${h.length}건`;
+  if (!h.length) {
+    el.innerHTML = '<div class="no-history">📂 저장된 브리핑이 없습니다.<br>브리핑을 실행하면 자동으로 저장됩니다.</div>';
+    return;
+  }
+  el.innerHTML = h.map((item, idx) => {
+    const date = new Date(item.date);
+    const headlines = (item.briefs||[]).slice(0,2).map(b=>b.headline).join(' / ');
+    const topicArr = (item.topics||'').split(',').map(t=>t.trim()).filter(Boolean);
+    return `
+      <div>
+        <div class="history-card" onclick="toggleHistoryDetail(${idx})">
+          <div class="h-date">
+            ${date.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})}
+            ${date.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}
+          </div>
+          <div class="h-topics">
+            ${topicArr.map(t=>`<span class="h-topic-tag">${t.replace('Malaysia ','')}</span>`).join('')}
+          </div>
+          <div class="h-headline">${headlines||'—'}</div>
+          <div class="h-count">📋 ${(item.briefs||[]).length}건 수집</div>
+        </div>
+        <div class="history-detail" id="hd-${idx}">
+          <span class="close-btn" onclick="toggleHistoryDetail(${idx})">✕</span>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:14px;font-family:'Noto Sans KR',sans-serif">
+            ${item.genTime||''}
+          </div>
+          ${(item.briefs||[]).map((b,bi)=>`
+            <div class="brief-card ${sigClass[b.significance]||''}" style="margin-bottom:10px">
+              <div class="brief-meta-top">
+                <span>BRIEF ${String(bi+1).padStart(2,'0')}</span>
+                <span class="sig-badge sig-${b.significance}">${b.significance||'—'}</span>
+                <span>${b.category||'—'}</span>
+              </div>
+              <div class="brief-headline">${b.headline||'—'}</div>
+              <div class="brief-en">${b.summary_en||'—'}</div>
+              <div class="brief-kr">${b.summary_kr||'—'}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleHistoryDetail(idx) {
+  const el = document.getElementById('hd-' + idx);
+  el.classList.toggle('show');
+}
+
+function clearAllHistory() {
+  if (!confirm('모든 브리핑 이력을 삭제하시겠습니까?')) return;
+  saveHistory([]);
+  renderHistory();
+  showToast('🗑 이력이 삭제되었습니다.');
+}
+
+// ══════════════════════════════
+//  TREND / CHARTS
+// ══════════════════════════════
+function renderTrend() {
+  const h = loadHistory();
+  if (!h.length) {
+    document.getElementById('trendEmpty').style.display = 'block';
+    return;
+  }
+  document.getElementById('trendEmpty').style.display = 'none';
+
+  // KPIs
+  const totalNews = h.reduce((s,x)=>s+(x.briefs||[]).length, 0);
+  const highCount = h.reduce((s,x)=>s+(x.briefs||[]).filter(b=>b.significance==='HIGH').length, 0);
+  const days = new Set(h.map(x=>x.date?.slice(0,10))).size;
+  document.getElementById('kpi-total').textContent = h.length;
+  document.getElementById('kpi-news').textContent = totalNews;
+  document.getElementById('kpi-high').innerHTML = highCount + '<span>건</span>';
+  document.getElementById('kpi-days').textContent = days;
+
+  // Daily chart
+  const dailyMap = {};
+  h.forEach(x => {
+    const d = x.date?.slice(0,10);
+    if (d) dailyMap[d] = (dailyMap[d]||0) + (x.briefs||[]).length;
+  });
+  const sortedDays = Object.keys(dailyMap).sort().slice(-14);
+  const dailyVals = sortedDays.map(d => dailyMap[d]);
+
+  if (chartDaily) chartDaily.destroy();
+  chartDaily = new Chart(document.getElementById('chartDaily'), {
+    type: 'bar',
+    data: {
+      labels: sortedDays.map(d => d.slice(5)),
+      datasets: [{
+        label: '뉴스 건수',
+        data: dailyVals,
+        backgroundColor: 'rgba(0,200,150,0.4)',
+        borderColor: 'rgba(0,200,150,0.8)',
+        borderWidth: 1,
+        borderRadius: 2
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#4a6070', font: {size:10} }, grid: { color: '#1a2d40' } },
+        y: { ticks: { color: '#4a6070', font: {size:10} }, grid: { color: '#1a2d40' }, beginAtZero: true }
+      }
+    }
+  });
+
+  // Category bars
+  const catMap = {};
+  h.forEach(x => (x.briefs||[]).forEach(b => {
+    catMap[b.category] = (catMap[b.category]||0) + 1;
+  }));
+  const maxCat = Math.max(...Object.values(catMap), 1);
+  document.getElementById('catBars').innerHTML = Object.entries(catMap)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([cat, cnt]) => `
+      <div class="cat-bar">
+        <div class="cat-bar-label"><span>${cat||'기타'}</span><span>${cnt}</span></div>
+        <div class="cat-bar-track">
+          <div class="cat-bar-fill" style="width:${Math.round(cnt/maxCat*100)}%"></div>
+        </div>
+      </div>
+    `).join('');
+
+  // Significance donut
+  const sigMap = {HIGH:0, MEDIUM:0, LOW:0};
+  h.forEach(x => (x.briefs||[]).forEach(b => { if(sigMap[b.significance]!==undefined) sigMap[b.significance]++; }));
+  const sigColors = {HIGH:'#ff4455', MEDIUM:'#ffd166', LOW:'#3a5570'};
+
+  if (chartSig) chartSig.destroy();
+  chartSig = new Chart(document.getElementById('chartSig'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(sigMap),
+      datasets: [{
+        data: Object.values(sigMap),
+        backgroundColor: Object.keys(sigMap).map(k=>sigColors[k]),
+        borderWidth: 0
+      }]
+    },
+    options: {
+      cutout: '65%',
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  document.getElementById('sigLegend').innerHTML = Object.entries(sigMap).map(([k,v])=>`
+    <div class="sig-leg-item">
+      <div class="sig-dot" style="background:${sigColors[k]}"></div>
+      <span>${k}</span><span style="color:var(--text);font-weight:600;margin-left:4px">${v}</span>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════
+//  PDF EXPORT
+// ══════════════════════════════
+function exportPDF() {
+  if (document.getElementById('briefOutput').style.display === 'none') {
+    showToast('⚠ 먼저 브리핑을 실행해주세요.');
+    return;
+  }
+  showToast('📄 PDF 출력 준비 중...');
+  setTimeout(() => window.print(), 300);
+}
+
+// ══════════════════════════════
+//  TOAST
+// ══════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  clearTimeout(toastTimer);
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ══════════════════════════════
+//  INIT
+// ══════════════════════════════
+loadAlarmUI();
+updateApiKeyUI();
+</script>
+</body>
+</html>
